@@ -28,6 +28,9 @@ sub do_cdyne_request {
 
     croak "URI is required" unless $uri;
 
+    $args ||= {};
+    $args->{LicenseKey} ||= $self->api_key;
+
     # build request
     my $body;
     my $args_encoded = $args && %$args ? $self->buildQuery($args) : '';
