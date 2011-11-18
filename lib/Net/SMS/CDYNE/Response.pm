@@ -22,9 +22,9 @@ sub success {
 }
 
 sub sms_error { shift->{SMSError} }
-sub queued { shift->{Queued} }
-sub sent { shift->{Sent} }
+sub queued { (shift->{Queued} || '') eq 'true' }
+sub sent { (shift->{Sent} || '') eq 'true' }
 sub message_id { shift->{MessageID} }
-sub cancelled { shift->{Cancelled} }
+sub cancelled { (shift->{Cancelled} || '') eq 'true' }
 
 __PACKAGE__->meta->make_immutable;
