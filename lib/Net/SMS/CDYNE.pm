@@ -34,11 +34,14 @@ sub do_cdyne_request {
     # build request
     my $body;
     my $args_encoded = $args && %$args ? $self->buildQuery($args) : '';
+    $args_encoded =~ s/^(\?)//;
     if (lc $method eq 'get') {
         $uri .= '?' . $args_encoded;
     } else {
         $body = $args_encoded;
     }
+
+    warn "Request: $uri\n" if $self->debug;
 
     $self->request($method, $uri, $body);
 
@@ -52,7 +55,7 @@ sub do_cdyne_request {
         return Net::SMS::CDYNE::Response->new(response_code => $response_code);
     }
 
-    warn $content if $self->debug;
+    warn "\nResponse: $content\n" if $self->debug;
 
     # attempt to parse response XML
     my $resp_obj = eval { XMLin($content) };
