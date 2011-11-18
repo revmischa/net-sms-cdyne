@@ -58,10 +58,12 @@ sub do_cdyne_request {
     my $resp_obj = eval { XMLin($content) };
     warn "Failed parsing response: $content ($@)" unless $resp_obj;
 
-    return Net::SMS::CDYNE::Response->new(
+    my $ret = {
         response_code => $response_code,
         %$resp_obj,
-    );
+    };
+
+    return bless $ret, 'Net::SMS::CDYNE::Response';
 }
 
 sub simple_sms_send_with_postback {
