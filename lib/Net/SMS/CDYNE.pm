@@ -38,11 +38,13 @@ sub do_cdyne_request {
     if (lc $method eq 'get') {
         $uri .= '?' . $args_encoded;
     } else {
+        $headers->{'Content-Type'} = 'text/xml';
     }
 
     warn "Request: $uri\n" if $self->debug;
 
     $self->request($method, $uri, $body, $headers);
+    warn $body;
 
     my $response_code = $self->responseCode;
     my $content = $self->responseContent;
@@ -88,7 +90,7 @@ sub advanced_sms_send {
 
     my $uri = 'https://sms2.cdyne.com/sms.svc/SecureREST/AdvancedSMSsend';
 
-    $headers->{'Content-Type'} = 'text/xml';
+    $args{LicenseKey} ||= $self->api_key;
     my $num = delete $args{PhoneNumber};
     my $doc = {
         SMSAdvancedRequest => {
