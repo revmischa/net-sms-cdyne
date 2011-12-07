@@ -24,7 +24,7 @@ has 'api_key' => (
 );
 
 sub do_cdyne_request {
-    my ($self, $method, $uri, $args) = @_;
+    my ($self, $method, $uri, $args, $body) = @_;
 
     croak "URI is required" unless $uri;
 
@@ -32,18 +32,17 @@ sub do_cdyne_request {
     $args->{LicenseKey} ||= $self->api_key;
 
     # build request
-    my $body;
+    my $headers = {};
     my $args_encoded = $args && %$args ? $self->buildQuery($args) : '';
     $args_encoded =~ s/^(\?)//;
     if (lc $method eq 'get') {
         $uri .= '?' . $args_encoded;
     } else {
-        $body = $args_encoded;
     }
 
     warn "Request: $uri\n" if $self->debug;
 
-    $self->request($method, $uri, $body);
+    $self->request($method, $uri, $body, $headers);
 
     my $response_code = $self->responseCode;
     my $content = $self->responseContent;
@@ -83,11 +82,44 @@ sub simple_sms_send {
     return $self->do_cdyne_request('GET', $uri, \%args);
 }
 
+# takes AssignedDID
 sub advanced_sms_send {
     my ($self, %args) = @_;
 
     my $uri = 'https://sms2.cdyne.com/sms.svc/SecureREST/AdvancedSMSsend';
-    return $self->do_cdyne_request('POST', $uri, \%args);
+
+    $headers->{'Content-Type'} = 'text/xml';
+    my $num = delete $args{PhoneNumber};
+    my $doc = {
+        SMSAdvancedRequest => {
+            xmlns => 'http://schemas.datacontract.org/2004/07/SmsWS',
+            LicenseKey => [ delete $args{LicenseKey} ],
+            SMSRequests => [
+                {
+                    SMSRequest => [
+                        {
+                            xmlns => "http://sms2.cdyne.com",
+                            Message => [ delete $args{Message} ],
+                            AssignedDID => [ delete $args{AssignedDID} ],
+                            StatusPostBackURL => [ delete $args{StatusPostBackURL} ],
+                            PhoneNumbers => [ {
+                                string => [
+                                    {
+                                        xmlns => 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+                                        content => $num,
+                                    },
+                                ],
+                            } ],
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    
+    my $body = XML::Simple::XMLout($doc, KeepRoot => 1, ContentKey => 'content');
+    
+    return $self->do_cdyne_request('POST', $uri, \%args, $body);
 }
 
 sub get_unread_incoming_messages {
