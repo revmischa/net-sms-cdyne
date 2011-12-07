@@ -62,6 +62,10 @@ sub do_cdyne_request {
     my $resp_obj = eval { XMLin($content) };
     warn "Failed parsing response: $content ($@)" unless $resp_obj;
 
+    # if we do an advanced send, we get an array of responses.
+    # since we only handle sending one message at a time, we can just grab the first response.
+    $resp_obj = $resp_obj->{SMSResponse} if $resp_obj->{SMSResponse};
+
     my $ret = {
         response_code => $response_code,
         %$resp_obj,
