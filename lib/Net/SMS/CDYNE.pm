@@ -44,7 +44,6 @@ sub do_cdyne_request {
     warn "Request: $uri\n" if $self->debug;
 
     $self->request($method, $uri, $body, $headers);
-    warn $body;
 
     my $response_code = $self->responseCode;
     my $content = $self->responseContent;
