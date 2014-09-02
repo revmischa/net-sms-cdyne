@@ -1,7 +1,7 @@
 package Net::SMS::CDYNE;
 
 use 5.008_001;
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use Any::Moose;
 use Any::Moose 'X::NonMoose';
@@ -73,6 +73,44 @@ sub do_cdyne_request {
 
     return bless $ret, 'Net::SMS::CDYNE::Response';
 }
+
+# takes a phone number, returns a structure of info
+sub phone_verify {
+    my ($self, $phone_number) = @_;
+
+    my $uri = 'http://ws.cdyne.com/phoneverify/phoneverify.asmx/CheckPhoneNumber';
+    return $self->do_cdyne_request('GET', $uri, { PhoneNumber => $phone_number });
+}
+# $ curl 'http://ws.cdyne.com/phoneverify/phoneverify.asmx/CheckPhoneNumber?PhoneNumber=17575449510&LicenseKey=XXXXX'
+# <?xml version="1.0" encoding="utf-8"?>
+# <PhoneReturn xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://ws.cdyne.com/PhoneVerify/query">
+#   <Company>LEVEL 3 COMM - VA</Company>
+#   <Valid>true</Valid>
+#   <Use>Assigned to a code holder for normal use.</Use>
+#   <State>VA</State>
+#   <RC>NRFOLKZON2</RC>
+#   <OCN>8825</OCN>
+#   <OriginalNumber>17575449510</OriginalNumber>
+#   <CleanNumber>7575449510</CleanNumber>
+#   <SwitchName>CHSKVAAY0MD</SwitchName>
+#   <SwitchType />
+#   <Country>United States</Country>
+#   <CLLI>CHSKVAAYDS0</CLLI>
+#   <PrefixType>CLEC - (Competitive Local Exchange Carrier)</PrefixType>
+#   <LATA>252</LATA>
+#   <sms>CLEC - (Competitive Local Exchange Carrier)</sms>
+#   <Email />
+#   <AssignDate>05/24/2001</AssignDate>
+#   <TelecomCity>PARKSLEY</TelecomCity>
+#   <TelecomCounty />
+#   <TelecomState>VA</TelecomState>
+#   <TelecomZip>23421</TelecomZip>
+#   <TimeZone>EST</TimeZone>
+#   <Lat>37.7790</Lat>
+#   <Long>-75.6343</Long>
+#   <Wireless>false</Wireless>
+#   <LRN>7576559199</LRN>
+# </PhoneReturn>
 
 sub simple_sms_send_with_postback {
     my ($self, %args) = @_;
@@ -191,6 +229,8 @@ Uses SecureREST API: https://sms2.cdyne.com/sms.svc/SecureREST/help
 =head1 METHODS
 
 =over 4
+
+ phone_verify(phone_number)
 
  simple_sms_send
 
