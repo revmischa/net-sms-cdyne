@@ -1,7 +1,7 @@
 package Net::SMS::CDYNE;
 
 use 5.008_001;
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 use Any::Moose;
 use Any::Moose 'X::NonMoose';
