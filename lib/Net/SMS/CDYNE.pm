@@ -8,6 +8,7 @@ use Any::Moose 'X::NonMoose';
 use XML::Simple;
 use Carp qw/croak cluck/;
 use Net::SMS::CDYNE::Response;
+use Encode;
 
 extends 'REST::Client';
 
@@ -41,6 +42,9 @@ sub do_cdyne_request {
         $headers->{'Content-Type'} = 'text/xml';
     }
 
+    # encode body
+    $body = encode_utf8($body);
+    
     warn "Request: $uri\n" if $self->debug;
 
     $self->request($method, $uri, $body, $headers);
