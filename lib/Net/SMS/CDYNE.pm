@@ -43,7 +43,8 @@ sub do_cdyne_request {
     }
 
     # encode body
-    $body = encode_utf8($body);
+    $body = encode_utf8($body)
+        if defined $body;
     
     warn "Request: $uri\n" if $self->debug;
 
