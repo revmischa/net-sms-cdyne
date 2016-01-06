@@ -138,8 +138,23 @@ sub advanced_sms_send {
     my $uri = 'https://sms2.cdyne.com/sms.svc/SecureREST/AdvancedSMSsend';
 
     $args{LicenseKey} ||= $self->api_key;
-    my $num = delete $args{PhoneNumber};
+    my $nums = delete $args{PhoneNumbers};
     my $refid = delete $args{ReferenceID} || '';
+
+    my @subdoc = ();
+    foreach my $num (@$nums){
+        push(@subdoc, 
+            {
+                string => [
+                    {
+                        xmlns => 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+                        content => $num,
+                    },
+                ]
+            }
+        );
+    }
+
     my $doc = {
         SMSAdvancedRequest => {
             xmlns => 'http://schemas.datacontract.org/2004/07/SmsWS',
@@ -153,14 +168,7 @@ sub advanced_sms_send {
                             AssignedDID => [ delete $args{AssignedDID} ],
                             StatusPostBackURL => [ delete $args{StatusPostBackURL} ],
                             ReferenceID => [ $refid ],
-                            PhoneNumbers => [ {
-                                string => [
-                                    {
-                                        xmlns => 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
-                                        content => $num,
-                                    },
-                                ],
-                            } ],
+                            PhoneNumbers => \@subdoc
                         },
                     ],
                 },
