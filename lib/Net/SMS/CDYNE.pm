@@ -139,6 +139,7 @@ sub advanced_sms_send {
 
     $args{LicenseKey} ||= $self->api_key;
     my $nums = delete $args{PhoneNumbers};
+    $nums = [delete $args{PhoneNumber}] if $args{PhoneNumber};
     my $refid = delete $args{ReferenceID} || '';
 
     my @subdoc = ();
