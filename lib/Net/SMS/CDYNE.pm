@@ -144,16 +144,10 @@ sub advanced_sms_send {
 
     my @subdoc = ();
     foreach my $num (@$nums){
-        push(@subdoc, 
-            {
-                string => [
-                    {
-                        xmlns => 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
-                        content => $num,
-                    },
-                ]
-            }
-        );
+        push(@subdoc,  {
+            xmlns => 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+            content => $num,
+        });
     }
 
     my $doc = {
@@ -169,7 +163,7 @@ sub advanced_sms_send {
                             AssignedDID => [ delete $args{AssignedDID} ],
                             StatusPostBackURL => [ delete $args{StatusPostBackURL} ],
                             ReferenceID => [ $refid ],
-                            PhoneNumbers => \@subdoc
+                            PhoneNumbers => {string => \@subdoc}
                         },
                     ],
                 },
